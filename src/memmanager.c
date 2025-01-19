@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <libdragon.h>
 #include "n64fs.h"
+#include "menu.h"
 
 #define u8 unsigned char
 #define MAX_SUPPORTED_PATH_LEN 256
@@ -20,45 +21,6 @@ int filesize(FILE *pFile)
     return lSize;
 }
 
-void show_main_menu()
-{
-    console_clear();
-
-    printf("Press A on a controller\n"
-           "to read that controller's\n"
-           "mempak.\n\n"
-           "Press B to format mempak.\n\n"
-           "Press L to save mempak to file.\n\n"
-           "Press R to load mempak from file.");
-
-    console_render();
-}
-
-int main_menu_prompt()
-{
-    printf(
-        "\n\n\n"
-        "To return to main menu press start\n\n");
-    console_render();
-
-    while (1)
-    {
-        controller_scan();
-        struct controller_data keys = get_keys_down();
-
-        for (int i = 0; i < 4; i++)
-        {
-            if (keys.c[i].err == ERROR_NONE)
-            {
-                if (keys.c[i].start)
-                {
-                    show_main_menu();
-                    return (0);
-                }
-            }
-        }
-    }
-}
 
 void view_pak_conents(int controller_number)
 {
@@ -151,20 +113,34 @@ void read_mempak_from_file(int controller_number)
         printf("Error opening SD!\n");
     }
 
-    char path[156];
+    // char path[156];
+
+    // printf(path, "rom:/MEMPAKS/gold.mpk");
+
+    FILE *fp = fopen("sd:/MEMPAKS/gold.mpk", "r");
+    if (!fp)
+    {
+        printf("\nError opening file!\n");
+    }
+
+    fread(&mempak_data,MEMPAK_BLOCK_SIZE, 128, fp);
+
+    fclose(fp);
+    debug_close_sdfs();
+
     
-    direntry_t *list;
-    int count = 0;
-    int page = 0;
-    int cursor = 0; 
+    // direntry_t *list;
+    // int count = 0;
+    // int page = 0;
+    // int cursor = 0; 
 
-    console_clear();
+    // console_clear();
 
-    list = populate_dir(&count);
+    // list = populate_dir(&count);
 
-    console_clear();
-    display_dir(list, cursor, page, MAX_LIST, count);
-    console_render();
+    // console_clear();
+    // display_dir(list, cursor, page, MAX_LIST, count);
+    // console_render();
 }
 
 void mempak_copy_to_file(int controller_number)
@@ -211,7 +187,7 @@ void mempak_copy_from_file(int controller_number)
     }
     else
     {
-        printf("Data saved into mempak!");
+        printf("Data saved into mempak!\n\n");
     }
 
 }
@@ -359,7 +335,7 @@ int main(void)
                         break;
                     case ACCESSORY_MEMPAK:
                     {
-                        mempak_copy_from_file(i);
+                        mempak_copy_to_file(i);
                         break;
                     }
                     case ACCESSORY_RUMBLEPAK:
@@ -369,7 +345,7 @@ int main(void)
                             printf("Cannot copy data from rumblepak!");
                             break;
                         case 1:
-                            mempak_copy_from_file(i);
+                            mempak_copy_to_file(i);
                             break;
                         default:
                             break;
