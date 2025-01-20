@@ -27,28 +27,7 @@ void view_pak_conents(int controller_number)
     }
     else
     {
-        entry_structure_t all_entries[16];
-        for (int j = 0; j < 16; j++)
-        {
-            entry_structure_t entry;
-
-            get_mempak_entry(controller_number, j, &entry);
-
-            all_entries[j] = entry;
-
-            // if (entry.valid)
-            // {
-            //     printf("%s - %d blocks\n", entry.name, entry.blocks);
-            // }
-            // else
-            // {
-            //     printf("(EMPTY)\n");
-            // }
-        }
-
-        display_notes(all_entries,0,0,16,16,0);
-
-        printf("\nFree space: %d blocks", get_mempak_free_space(controller_number));
+        nman_menu(controller_number);
     }
 }
 
@@ -159,13 +138,9 @@ char *select_file(char device[4]) {
     int cursor = 0; 
     static char path[512] = "";
 
-    console_clear();
-
     list = populate_dir(&count, location);
 
-    console_clear();
     display_dir(list, cursor, page, MAX_LIST, count);
-    console_render();
 
     while(1)
         {
@@ -186,18 +161,14 @@ char *select_file(char device[4]) {
             {
                 cursor--;
                 new_scroll_pos(&cursor, &page, MAX_LIST, count);
-                console_clear();
                 display_dir(list, cursor, page, MAX_LIST, count);
-                console_render();
             }
 
             if(keys.c[0].down)
             {
                 cursor++;
                 new_scroll_pos(&cursor, &page, MAX_LIST, count);
-                console_clear();
                 display_dir(list, cursor, page, MAX_LIST, count);
-                console_render();
             }
 
             if(keys.c[0].A && list[cursor].type == DT_DIR)
@@ -211,26 +182,22 @@ char *select_file(char device[4]) {
 
                 page = 0;
                 cursor = 0;
-                console_clear();
                 display_dir(list, cursor, page, MAX_LIST, count);
-                console_render();
             }
 
-            if(keys.c[0].B)
-            {
-                /* Up! */
-                chdir("..", location);
+            // if(keys.c[0].B)
+            // {
+            //     /* Up! */
+            //     chdir("..", location);
        
-                /* Populate new directory */
-                free_dir(list);
-                list = populate_dir(&count, location);
+            //     /* Populate new directory */
+            //     free_dir(list);
+            //     list = populate_dir(&count, location);
 
-                page = 0;
-                cursor = 0;
-                console_clear();
-                display_dir(list, cursor, page, MAX_LIST, count);
-                console_render();
-            }
+            //     page = 0;
+            //     cursor = 0;
+            //     display_dir(list, cursor, page, MAX_LIST, count);
+            // }
 
             if(keys.c[0].A && list[cursor].type == DT_REG)
             {

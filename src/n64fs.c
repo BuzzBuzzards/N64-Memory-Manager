@@ -155,6 +155,12 @@ void new_scroll_pos(int *cursor, int *page, int max, int count)
 
 void display_dir(direntry_t *list, int cursor, int page, int max, int count)
 {
+    console_clear();
+
+    printf("To select file use directonal buttons\n"
+    "To open file use button A\n"
+    "To exit to main menu use START button\n\n");
+    
     /* Page bounds checking */
     if(max > count)
     {
@@ -207,4 +213,5 @@ void display_dir(direntry_t *list, int cursor, int page, int max, int count)
             printf("%s\n", tmpdir);
         }
     }
+    console_render();
 }
