@@ -6,6 +6,7 @@
 #include "n64fs.h"
 #include "menu.h"
 #include "mpk_hw.h"
+#include "nman.h"
 
 
 int main(void)
@@ -33,7 +34,7 @@ int main(void)
             {
                 if (keys.c[i].A)
                 {
-                    menu_processor(view_pak_conents,i);
+                    menu_processor(nman_entry,i);
                 }
                 else if (keys.c[i].B)
                 {
