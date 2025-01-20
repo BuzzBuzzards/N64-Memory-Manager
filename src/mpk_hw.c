@@ -1,10 +1,12 @@
 #include <libdragon.h>
-#include <unistd.h>
 #include "mpk_hw.h"
+#include "n64fs.h"
 
 static uint8_t mempak_data[128 * MEMPAK_BLOCK_SIZE];
 
 bool dev = true;
+char location[512];
+
 
 void view_pak_conents(int controller_number)
 {
@@ -79,14 +81,9 @@ void write_mempak_to_file(int controller_number, char device[])
     debug_close_sdfs();
 }
 
+
 void read_mempak_from_file(int controller_number, char device[])
 {
-    dfs_init(DFS_DEFAULT_LOCATION);
-
-    
-
-    /* This will initialize the SD filesystem using 'sd:/' to identify it */
-    /* This path has to be the same used by the sprites when loading */
 
     char o_path[156];
 
@@ -103,20 +100,6 @@ void read_mempak_from_file(int controller_number, char device[])
 
     fclose(fp);
     debug_close_sdfs();
-
-    
-    // direntry_t *list;
-    // int count = 0;
-    // int page = 0;
-    // int cursor = 0; 
-
-    // console_clear();
-
-    // list = populate_dir(&count);
-
-    // console_clear();
-    // display_dir(list, cursor, page, MAX_LIST, count);
-    // console_render();
 }
 
 void mempak_copy_to_file(int controller_number)
@@ -159,6 +142,103 @@ void mempak_copy_to_file(int controller_number)
     }
 }
 
+char *select_file(char device[4]) {
+    sprintf(location,"%s:/MEMPAKS/",device);
+    dfs_init(DFS_DEFAULT_LOCATION);
+
+
+    direntry_t *list;
+    int count = 0;
+    int page = 0;
+    int cursor = 0; 
+    static char path[512] = "";
+
+    console_clear();
+
+    list = populate_dir(&count, location);
+
+    console_clear();
+    display_dir(list, cursor, page, MAX_LIST, count);
+    console_render();
+
+    while(1)
+        {
+            // console_clear();
+            // display_dir(list, cursor, page, MAX_LIST, count);
+            // console_render();
+
+            controller_scan();
+            struct controller_data keys = get_keys_down();
+
+            if(keys.c[0].start)
+            {
+                strcpy( path, "" );
+                break;
+            }
+
+            if(keys.c[0].up)
+            {
+                cursor--;
+                new_scroll_pos(&cursor, &page, MAX_LIST, count);
+                console_clear();
+                display_dir(list, cursor, page, MAX_LIST, count);
+                console_render();
+            }
+
+            if(keys.c[0].down)
+            {
+                cursor++;
+                new_scroll_pos(&cursor, &page, MAX_LIST, count);
+                console_clear();
+                display_dir(list, cursor, page, MAX_LIST, count);
+                console_render();
+            }
+
+            if(keys.c[0].A && list[cursor].type == DT_DIR)
+            {
+                /* Change directories */
+                chdir(list[cursor].filename, location);
+       
+                /* Populate new directory */
+                free_dir(list);
+                list = populate_dir(&count, location);
+
+                page = 0;
+                cursor = 0;
+                console_clear();
+                display_dir(list, cursor, page, MAX_LIST, count);
+                console_render();
+            }
+
+            if(keys.c[0].B)
+            {
+                /* Up! */
+                chdir("..", location);
+       
+                /* Populate new directory */
+                free_dir(list);
+                list = populate_dir(&count, location);
+
+                page = 0;
+                cursor = 0;
+                console_clear();
+                display_dir(list, cursor, page, MAX_LIST, count);
+                console_render();
+            }
+
+            if(keys.c[0].A && list[cursor].type == DT_REG)
+            {
+                /* Concatenate to make file */
+
+                strcpy( path, location );
+                strcat( path, list[cursor].filename );
+                break;
+            }
+        }
+
+        return path;
+}
+
 void mempak_copy_from_file(int controller_number)
 {
     console_clear();
@@ -179,6 +259,15 @@ void mempak_copy_from_file(int controller_number)
     {
         device = "sd";
     }
+
+    char path[512] = "";
+    sprintf(path,select_file(device));
+
+    if(strlen(path) == 0) {
+        return;
+    }
+
+    printf("Selected file %s\n\n", path);
     
     read_mempak_from_file(controller_number, device);
 

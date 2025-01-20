@@ -14,9 +14,9 @@ typedef struct
     char filename[MAX_FILENAME_LEN+1];
 } direntry_t;
 
-char dir[512] = "rom://";
+// char dir[512] = "rom://";
 
-void chdir( const char * const dirent )
+void chdir( const char * const dirent, char dir[512])
 {
     /* Ghetto implementation */
     if( strcmp( dirent, ".." ) == 0 )
@@ -70,7 +70,7 @@ int compare(const void * a, const void * b)
     return strcmp(first->filename, second->filename);
 }
 
-direntry_t *populate_dir(int *count)
+direntry_t *populate_dir(int *count, char dir[512])
 {
     /* Grab a slot */
     direntry_t *list = malloc(sizeof(direntry_t));
