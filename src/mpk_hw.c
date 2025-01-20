@@ -1,6 +1,7 @@
 #include <libdragon.h>
 #include "mpk_hw.h"
 #include "n64fs.h"
+#include "nman.h"
 
 static uint8_t mempak_data[128 * MEMPAK_BLOCK_SIZE];
 
@@ -26,21 +27,26 @@ void view_pak_conents(int controller_number)
     }
     else
     {
+        entry_structure_t all_entries[16];
         for (int j = 0; j < 16; j++)
         {
             entry_structure_t entry;
 
             get_mempak_entry(controller_number, j, &entry);
 
-            if (entry.valid)
-            {
-                printf("%s - %d blocks\n", entry.name, entry.blocks);
-            }
-            else
-            {
-                printf("(EMPTY)\n");
-            }
+            all_entries[j] = entry;
+
+            // if (entry.valid)
+            // {
+            //     printf("%s - %d blocks\n", entry.name, entry.blocks);
+            // }
+            // else
+            // {
+            //     printf("(EMPTY)\n");
+            // }
         }
+
+        display_notes(all_entries,0,0,16,16,0);
 
         printf("\nFree space: %d blocks", get_mempak_free_space(controller_number));
     }
