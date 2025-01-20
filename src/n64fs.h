@@ -1,12 +1,6 @@
 #ifndef N64FS_H
 #define N64FS_H
 
-#include <math.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <malloc.h>
 #include <libdragon.h>
 
 #define MAX_LIST            20

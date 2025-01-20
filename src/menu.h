@@ -4,7 +4,8 @@
 
 #include <libdragon.h>
 
-extern void show_main_menu();
-extern int main_menu_prompt();
+void show_main_menu();
+int main_menu_prompt();
+void menu_processor(void (*action)(int i), int i);
 
 #endif
