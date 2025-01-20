@@ -2,3 +2,4 @@ build
 *.z64
 .vscode
 *.pak
+*.bak
